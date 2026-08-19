@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ extraction.filename }} · Extraction{% endblock %}
+
+{% block body %}
+<main class="result-page" data-extraction-id="{{ extraction.id }}" data-schema-key="{{ extraction.schema_key }}">
+
+  <header class="result-header">
+    <a href="/" class="back" title="Back">←</a>
+    <div class="result-title-block">
+      <h1 class="result-title">{{ extraction.filename }}</h1>
+      <div class="result-sub">
+        <span class="badge">{{ extraction.schema_label }}</span>
+        <span>{{ extraction.page_count }} page{{ '' if extraction.page_count == 1 else 's' }}</span>
+        <span>{{ extraction.duration_ms }} ms</span>
+        <span>{{ extraction.tokens_input + extraction.tokens_output }} tokens</span>
+      </div>
+    </div>
+    <div class="result-actions">
+      <a href="/api/result/{{ extraction.id }}.json" class="ghost" download>JSON</a>
+      <a href="/api/result/{{ extraction.id }}.csv" class="ghost" download>CSV</a>
+      <button id="save-btn" class="primary" disabled>Save edits</button>
+      <button id="delete-btn" class="danger">Delete</button>
+    </div>
+  </header>
+
+  <section class="result-body">
+    {# Left: page gallery #}
+    <aside class="page-gallery">
+      <div class="gallery-title">Pages</div>
+      <div class="gallery-scroll">
+        {% for i in range(1, extraction.page_count + 1) %}
+        <div class="page-tile">
+          <a href="/files/{{ extraction.id }}/page/{{ i }}" target="_blank" rel="noopener">
+            <img src="/files/{{ extraction.id }}/page/{{ i }}" alt="Page {{ i }}" loading="lazy" />
+          </a>
+          <div class="page-tile-label">Page {{ i }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </aside>
+
+    {# Right: extracted data viewer + editor #}
+    <section class="data-pane">
+      <div class="data-header">
+        <div class="data-title">Extracted fields</div>
+        <div class="data-help">Click any value to edit it. Click <b>Save edits</b> to persist.</div>
+      </div>
+      <div id="data-tree" class="data-tree"></div>
+    </section>
+  </section>
+
+  {# Inject the JSON safely #}
+  <script id="extracted-data" type="application/json">{{ extraction.data_json|safe }}</script>
+</main>
+
+<script src="/static/app.js"></script>
+{% endblock %}

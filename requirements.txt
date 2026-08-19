@@ -1,0 +1,12 @@
+google-genai>=1.0.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+pydantic-settings>=2.6.0
+python-dotenv>=1.0.0
+python-multipart>=0.0.12
+jinja2>=3.1.4
+
+# Document processing
+pypdfium2>=4.30.0
+Pillow>=10.4.0

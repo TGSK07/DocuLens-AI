@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Multimodal Document OCR + Extraction{% endblock %}
+
+{% block body %}
+<main class="landing">
+  <header class="landing-header">
+    <div class="brand">
+      <div class="brand-mark">📄</div>
+      <div>
+        <h1>Multimodal Document OCR</h1>
+        <p>Photos, scans, and PDFs of structured documents → clean JSON.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>1. Pick a document type</h2>
+    <div class="schema-grid" id="schema-grid">
+      {% for s in schemas %}
+      <label class="schema-option">
+        <input type="radio" name="schema" value="{{ s.key }}" {% if loop.first %}checked{% endif %} />
+        <div class="schema-card">
+          <div class="schema-title">{{ s.label }}</div>
+          <div class="schema-description">{{ s.description }}</div>
+        </div>
+      </label>
+      {% endfor %}
+    </div>
+
+    {# Custom schema builder — hidden until "Custom" is picked. #}
+    <div class="custom-builder" id="custom-builder" hidden>
+      <h3>Custom fields</h3>
+      <p class="hint">Name what you want to pull out. The model will fill these and leave anything it can't read as <code>null</code>.</p>
+      <div id="custom-fields"></div>
+      <button type="button" id="add-field" class="ghost">+ Add field</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Upload</h2>
+    <form action="/extract" method="post" enctype="multipart/form-data" id="upload-form">
+      <input type="hidden" name="schema_key" id="schema-key" value="invoice" />
+      <input type="hidden" name="custom_fields_json" id="custom-fields-json" value="" />
+      <label class="upload-drop">
+        <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.bmp,.gif" required id="file-input" />
+        <span class="drop-icon">↑</span>
+        <span class="drop-title" id="drop-title">Choose an image or PDF</span>
+        <span class="drop-hint">JPEG, PNG, WebP, PDF · up to 20 MB · stays on your machine</span>
+      </label>
+      <button class="primary" type="submit" id="submit-btn">Extract fields</button>
+    </form>
+  </section>
+
+  {% if recent %}
+  <section class="recent">
+    <h2>Recent extractions</h2>
+    <ul class="recent-list">
+      {% for e in recent %}
+      <li>
+        <a class="recent-row" href="/result/{{ e.id }}">
+          <img src="/files/{{ e.id }}/page/1" alt="" class="recent-thumb" loading="lazy" onerror="this.style.display='none'" />
+          <div class="recent-meta">
+            <div class="recent-title">{{ e.filename }}</div>
+            <div class="recent-sub">
+              {{ e.schema_label }} · {{ e.page_count }} page{{ '' if e.page_count == 1 else 's' }}
+            </div>
+          </div>
+          <div class="recent-date">{{ e.created_at[:16].replace('T', ' ') }}</div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <footer class="landing-footer">
+    Structured output · Google Gemini vision · Pydantic-validated
+  </footer>
+</main>
+
+<script src="/static/app.js"></script>
+{% endblock %}
