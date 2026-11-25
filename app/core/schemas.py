@@ -194,26 +194,27 @@ class CustomFieldSpec(BaseModel):
 
 
 def build_custom_schema(fields: list[CustomFieldSpec]) -> dict[str, Any]:
-    """Build a JSON Schema object from a list of user-supplied field specs."""
+    """Build a Gemini-compatible schema object from a list of user-supplied field specs."""
     json_type_map: dict[str, dict[str, Any]] = {
-        "string":      {"type": ["string", "null"]},
-        "number":      {"type": ["number", "null"]},
-        "integer":     {"type": ["integer", "null"]},
-        "boolean":     {"type": ["boolean", "null"]},
-        "date":        {"type": ["string", "null"], "format": "date"},
+        "string":      {"type": "string", "nullable": True},
+        "number":      {"type": "number", "nullable": True},
+        "integer":     {"type": "integer", "nullable": True},
+        "boolean":     {"type": "boolean", "nullable": True},
+        "date":        {"type": "string", "nullable": True, "format": "date"},
         "list-string": {"type": "array", "items": {"type": "string"}},
     }
     properties: dict[str, dict[str, Any]] = {}
     for f in fields:
-        base = dict(json_type_map.get(f.type, {"type": ["string", "null"]}))
+        base = dict(json_type_map.get(f.type, {"type": "string", "nullable": True}))
         if f.description:
             base["description"] = f.description
         properties[f.name] = base
     properties["notes"] = {
-        "type": ["string", "null"],
+        "type": "string",
+        "nullable": True,
         "description": "Anything the model wasn't sure about; null otherwise.",
     }
-    return {"type": "object", "properties": properties, "additionalProperties": False}
+    return {"type": "object", "properties": properties}
 
 
 # ─────────────────────────── Registry ───────────────────────────
